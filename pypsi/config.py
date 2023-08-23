@@ -13,7 +13,7 @@ import logging
 import pathlib as plib
 import simple_parsing as sp
 import dataclasses as dc
-import options as opts
+from pypsi import options as opts
 log_module = logging.getLogger(__name__)
 
 
