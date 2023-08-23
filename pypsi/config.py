@@ -37,12 +37,12 @@ class XConfig(sp.Serializable):
 
 @dc.dataclass
 class Params(sp.Serializable):
-    config: Config = Config(),
-    emc: opts.EmcParameters = opts.EmcParameters(),
-    pypulseq: opts.PypulseqParameters = opts.PypulseqParameters(),
-    pulse: opts.RFParameters = opts.RFParameters(),
-    sampling_k_traj: opts.SamplingKTrajectoryParameters = opts.SamplingKTrajectoryParameters(),
-    recon: opts.ReconParameters = opts.ReconParameters(),
+    config: Config = Config()
+    emc: opts.EmcParameters = opts.EmcParameters()
+    pypulseq: opts.PypulseqParameters = opts.PypulseqParameters()
+    pulse: opts.RFParameters = opts.RFParameters()
+    sampling_k_traj: opts.SamplingKTrajectoryParameters = opts.SamplingKTrajectoryParameters()
+    recon: opts.ReconParameters = opts.ReconParameters()
     specs: opts.ScannerParameters = opts.ScannerParameters()
 
     @staticmethod
