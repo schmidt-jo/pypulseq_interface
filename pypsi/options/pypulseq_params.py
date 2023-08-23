@@ -12,6 +12,10 @@ class PypulseqParameters(sp.helpers.Serializable):
     """
     Holding all Sequence Parameters
     """
+    version: str = "xx"
+    report: bool = sp.field(default=False, alias="-r")
+    visualize: bool = sp.field(default=True, alias="-v")
+
     resolutionFovRead: float = 100  # [mm]
     resolutionFovPhase: float = 100.0  # [%]
     resolutionBase: int = 100
