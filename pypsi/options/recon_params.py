@@ -66,13 +66,13 @@ class ReconParameters(sp.Serializable):
         nav_res_phase = self.multi_echo_img.n_phase / nav_resolution_scaling
         nav_res_slice = self.multi_echo_img.n_slice / nav_resolution_scaling
         read_dir = self.multi_echo_img.read_dir
-        acc_factor_read = 1
+        acc_read = False
         acc_factor_phase = nav_acc_factor
         self.navigator_img = NavigatorAcqParameters(
             n_read=nav_n_read, n_phase=nav_n_phase, n_slice=nav_n_slice,
             resolution_read=nav_res_read, resolution_phase=nav_res_phase,
             resolution_slice=nav_res_slice, read_dir=read_dir,
-            acc_factor_read=acc_factor_read, acc_factor_phase=acc_factor_phase,
+            acc_read=acc_read, acc_factor_phase=acc_factor_phase,
             lines_per_nav=lines_per_nav, num_of_nav=num_of_nav, nav_acc_factor=nav_acc_factor,
             nav_resolution_scaling=nav_resolution_scaling
         )
