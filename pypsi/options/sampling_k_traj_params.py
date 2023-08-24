@@ -9,7 +9,14 @@ log_module = logging.getLogger(__name__)
 
 @dc.dataclass
 class SamplingKTrajectoryParameters(sp.Serializable):
-    lookup_df: pd.DataFrame = pd.DataFrame(columns=["acquisition", "adc_sampling_num", "k_traj_position"])
+    k_trajectories: pd.DataFrame = pd.DataFrame(
+        columns=["acquisition", "adc_sampling_num", "k_traj_position"]
+    )
+    sampling_pattern: pd.DataFrame = pd.DataFrame(
+        columns=["scan_num", "slice_num", "pe_num", "acq_type",
+                 "echo_num", "echo_type", "echo_type_num",
+                 "nav_acq", "nav_dir"]
+    )
 
     def register_trajectory(self, trajectory: np.ndarray, id: str):
         if trajectory.shape.__len__() > 1:
@@ -23,4 +30,23 @@ class SamplingKTrajectoryParameters(sp.Serializable):
         df = pd.DataFrame({
             "acquisition": acquisition, "adc_sampling_num": adc_samples, "k_traj_position": k_read_pos
         })
-        self.lookup_df = pd.concat((self.lookup_df, df), ignore_index=True).reset_index()
+        self.k_trajectories = pd.concat((self.k_trajectories, df), ignore_index=True).reset_index()
+
+    def write_sampling_pattern_entry(
+            self, scan_num: int, slice_num: int, pe_num, echo_num: int,
+            acq_type: str = "", echo_type: str = "", echo_type_num: int = -1,
+            nav_acq: bool = False, nav_dir: int = 0):
+        # check if entry exists already
+        if scan_num in self.sampling_pattern["scan_num"]:
+            err = f"scan number to register in sampling pattern ({scan_num}) exists already!"
+            log_module.error(err)
+            raise ValueError(err)
+        # build entry
+        new_row = {
+            "scan_num": scan_num, "slice_num": slice_num, "pe_num": pe_num, "acq_type": acq_type,
+            "echo_num": echo_num, "echo_type": echo_type, "echo_type_num": echo_type_num,
+            "nav_acq": nav_acq, "nav_dir": nav_dir
+        }
+        # add entry
+        self.sampling_pattern.append(new_row, ignore_index=True)
+
