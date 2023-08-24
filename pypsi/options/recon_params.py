@@ -40,22 +40,20 @@ class ReconParameters(sp.Serializable):
     multi_echo_img: ImageAcqParameters = ImageAcqParameters()
     navigator_img: NavigatorAcqParameters = NotImplemented
 
-    @classmethod
     def set_recon_params(
-            cls, img_n_read: int, img_n_phase: int, img_n_slice: int, img_resolution_read: float,
+            self, img_n_read: int, img_n_phase: int, img_n_slice: int, img_resolution_read: float,
             img_resolution_phase: float, img_resolution_slice: float, read_dir: str,
             acc_factor_read: int, acc_factor_phase: int, etl: int, te: typing.Union[list, np.ndarray]
     ):
         if isinstance(te, np.ndarray):
             te = te.tolist()
-        img_params = ImageAcqParameters(
+        self.multi_echo_img = ImageAcqParameters(
             n_read=img_n_read, n_phase=img_n_phase, n_slice=img_n_slice,
             resolution_read=img_resolution_read, resolution_phase=img_resolution_phase,
             resolution_slice=img_resolution_slice, read_dir=read_dir,
             acc_factor_read=acc_factor_read, acc_factor_phase=acc_factor_phase,
             etl=etl, te=te
         )
-        return cls(multi_echo_img=img_params)
 
     def set_navigator_params(
             self, lines_per_nav: int, num_of_nav: int, nav_acc_factor: int, nav_resolution_scaling: float
