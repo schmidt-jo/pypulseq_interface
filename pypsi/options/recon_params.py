@@ -21,7 +21,7 @@ class ImageAcqParameters(sp.Serializable):
 
     read_dir: str = NotImplemented
     os_factor: int = NotImplemented
-    acc_factor_read: int = NotImplemented
+    acc_read: bool = NotImplemented
     acc_factor_phase: int = NotImplemented
 
     etl: int = NotImplemented
