@@ -18,14 +18,14 @@ class SamplingKTrajectoryParameters(sp.Serializable):
                  "nav_acq", "nav_dir"]
     )
 
-    def register_trajectory(self, trajectory: np.ndarray, id: str):
+    def register_trajectory(self, trajectory: np.ndarray, identifier: str):
         if trajectory.shape.__len__() > 1:
             adc_samples = trajectory[:, 0]
             k_read_pos = trajectory[:, 1]
         else:
             adc_samples = np.arange(trajectory.shape[0])
             k_read_pos = trajectory
-        acquisition = [id] * trajectory.shape[0]
+        acquisition = [identifier] * trajectory.shape[0]
 
         df = pd.DataFrame({
             "acquisition": acquisition, "adc_sampling_num": adc_samples, "k_traj_position": k_read_pos
