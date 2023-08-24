@@ -103,7 +103,7 @@ if __name__ == '__main__':
     parser, args = create_cli()
 
     params = Params.from_cli(args=args)
-    params.save("pypsi/options/defaults/pypsi.pkl")
+    params.save("pypsi/options/default_config/pypsi.pkl")
 
-    params = Params.load("pypsi/options/defaults/pypsi.pkl")
+    params = Params.load("pypsi/options/default_config/pypsi.pkl")
     log_module.info("success")
