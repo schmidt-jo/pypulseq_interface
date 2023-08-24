@@ -44,7 +44,7 @@ class ReconParameters(sp.Serializable):
     def set_recon_params(
             self, img_n_read: int, img_n_phase: int, img_n_slice: int, img_resolution_read: float,
             img_resolution_phase: float, img_resolution_slice: float, read_dir: str, os_factor: int,
-            acc_read: bool, acc_factor_phase: int, etl: int, te: typing.Union[list, np.ndarray]
+            acc_read: bool, acc_factor_phase: float, etl: int, te: typing.Union[list, np.ndarray]
     ):
         if isinstance(te, np.ndarray):
             te = te.tolist()
