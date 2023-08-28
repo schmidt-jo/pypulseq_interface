@@ -42,11 +42,32 @@ class SamplingKTrajectoryParameters(sp.Serializable):
             log_module.error(err)
             raise ValueError(err)
         # build entry
-        new_row = {
+        new_row = pd.Series({
             "scan_num": scan_num, "slice_num": slice_num, "pe_num": pe_num, "acq_type": acq_type,
             "echo_num": echo_num, "echo_type": echo_type, "echo_type_num": echo_type_num,
             "nav_acq": nav_acq, "nav_dir": nav_dir
-        }
+        })
         # add entry
-        self.sampling_pattern.append(new_row, ignore_index=True)
+        self.sampling_pattern = pd.concat((self.sampling_pattern, new_row.to_frame().T))
 
+    # def build_save_k_traj(self, k_trajs: list, labels: list, n_samples_ref: int) -> pd.DataFrame:
+    #     # sanity check
+    #     if len(k_trajs) != len(labels):
+    #         err = "provide same number of labels as trajectories"
+    #         log_module.error(err)
+    #         raise AttributeError(err)
+    #     # build k_traj df
+    #     # add fully sampled reference
+    #     k_labels = ["fs_ref"] * n_samples_ref
+    #     traj_data: list = np.linspace(-0.5, 0.5, n_samples_ref).tolist()
+    #     traj_pts: list = np.arange(n_samples_ref).tolist()
+    #     for traj_idx in range(len(k_trajs)):
+    #         k_labels.extend([labels[traj_idx]] * k_trajs[traj_idx].shape[0])
+    #         traj_data.extend(k_trajs[traj_idx].tolist())
+    #         traj_pts.extend(np.arange(k_trajs[traj_idx].shape[0]).tolist())
+    #
+    #     k_traj_df = pd.DataFrame({
+    #         "acquisition": k_labels, "k_read_position": traj_data, "adc_sampling_num": traj_pts
+    #     })
+    #     # self.write_k_traj(k_traj_df)
+    #     return k_traj_df

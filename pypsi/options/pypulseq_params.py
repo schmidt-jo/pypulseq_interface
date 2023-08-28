@@ -53,7 +53,7 @@ class PypulseqParameters(sp.helpers.Serializable):
     TR: float = 4500.0  # [ms]
 
     bandwidth: float = 250.0  # [Hz / px]
-    oversampling: float = 2.0  # oversampling factor
+    oversampling: int = 2  # oversampling factor
     sampleWeighting: float = 0.0  # factor to weight random sampling towards central k-space ->
     # towards 1 we get densely sampled center
 
