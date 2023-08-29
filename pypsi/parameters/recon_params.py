@@ -11,35 +11,35 @@ log_module = logging.getLogger(__name__)
 @dc.dataclass
 class ImageAcqParameters(sp.Serializable):
     # define all recon parameters we ship in interface
-    n_read: int = NotImplemented
-    n_phase: int = NotImplemented
-    n_slice: int = NotImplemented
+    n_read: int = None
+    n_phase: int = None
+    n_slice: int = None
 
-    resolution_read: float = NotImplemented
-    resolution_phase: float = NotImplemented
-    resolution_slice: float = NotImplemented
+    resolution_read: float = None
+    resolution_phase: float = None
+    resolution_slice: float = None
 
-    read_dir: str = NotImplemented
-    os_factor: int = NotImplemented
-    acc_read: bool = NotImplemented
-    acc_factor_phase: float = NotImplemented
+    read_dir: str = None
+    os_factor: int = None
+    acc_read: bool = None
+    acc_factor_phase: float = None
 
-    etl: int = NotImplemented
-    te: list = NotImplemented
+    etl: int = None
+    te: list = None
 
 
 @dc.dataclass
 class NavigatorAcqParameters(ImageAcqParameters):
-    lines_per_nav: int = NotImplemented
-    num_of_nav: int = NotImplemented
-    nav_acc_factor: int = NotImplemented
-    nav_resolution_scaling: float = NotImplemented
+    lines_per_nav: int = None
+    num_of_nav: int = None
+    nav_acc_factor: int = None
+    nav_resolution_scaling: float = None
 
 
 @dc.dataclass
 class ReconParameters(sp.Serializable):
     multi_echo_img: ImageAcqParameters = ImageAcqParameters()
-    navigator_img: NavigatorAcqParameters = NavigatorAcqParameters()
+    navigator_img: NavigatorAcqParameters = None
 
     def set_recon_params(
             self, img_n_read: int, img_n_phase: int, img_n_slice: int, img_resolution_read: float,
