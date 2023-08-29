@@ -39,7 +39,7 @@ class NavigatorAcqParameters(ImageAcqParameters):
 @dc.dataclass
 class ReconParameters(sp.Serializable):
     multi_echo_img: ImageAcqParameters = ImageAcqParameters()
-    navigator_img: NavigatorAcqParameters = None
+    navigator_img: NavigatorAcqParameters = NavigatorAcqParameters()
 
     def set_recon_params(
             self, img_n_read: int, img_n_phase: int, img_n_slice: int, img_resolution_read: float,
