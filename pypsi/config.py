@@ -8,12 +8,16 @@ We want a class structure that provides all of the necessary information for:
 - saving and loading sampling patterns
 - interfacing pulse files - store and plot pulses used or feed in pulse shapes
 """
-
+import json
+import pickle as pkl
 import logging
 import pathlib as plib
+import typing
+
 import simple_parsing as sp
 import dataclasses as dc
 from pypsi import options as opts
+
 log_module = logging.getLogger(__name__)
 
 
@@ -24,7 +28,7 @@ class Config(sp.Serializable):
     visualize: bool = sp.field(default=True, alias=["-v"])
 
 
-@ dc.dataclass
+@dc.dataclass
 class XConfig(sp.Serializable):
     # loading extra files
     pypulseq_config_file: str = sp.field(default=None, alias="-ppf")
@@ -36,7 +40,7 @@ class XConfig(sp.Serializable):
 
 
 @dc.dataclass
-class Params(sp.Serializable):
+class Params:
     config: Config = Config()
     emc: opts.EmcParameters = opts.EmcParameters()
     pypulseq: opts.PypulseqParameters = opts.PypulseqParameters()
@@ -45,9 +49,8 @@ class Params(sp.Serializable):
     recon: opts.ReconParameters = opts.ReconParameters()
     specs: opts.ScannerParameters = opts.ScannerParameters()
 
-    @staticmethod
-    def _get_d_to_set():
-        return {
+    def __post_init__(self):
+        self._d_to_set: dict = {
             "pypulseq_config_file": "pypulseq",
             "pulse_file": "pulse",
             "sampling_k_traj_file": "sampling_k_traj",
@@ -55,6 +58,69 @@ class Params(sp.Serializable):
             "raw_data_details_file": "recon",
             "scanner_specs_file": "specs",
         }
+
+    @classmethod
+    def load(cls, f_name: typing.Union[str, plib.Path]):
+        # ensure path
+        f_name = plib.Path(f_name).absolute()
+        # check if exists
+        if f_name.is_file():
+            if ".json" in f_name.suffixes:
+                with open(f_name, "r") as j_file:
+                    # returns json contents as dict
+                    contents = json.load(j_file)
+                    inst = cls()
+                    for key, val in contents.items():
+                        inst.__setattr__(key, val)
+            if ".pkl" in f_name.suffixes:
+                with open(f_name, "rb") as p_file:
+                    inst = pkl.load(p_file)
+            else:
+                err = f"no valid suffix ({f_name.suffixes}), input needs to be .pkl or .json"
+                log_module.error(err)
+                raise AttributeError(err)
+        else:
+            err = f"no valid file: {f_name.as_posix()}"
+            log_module.error(err)
+            raise FileNotFoundError(err)
+        return inst
+
+    def save(self, f_name: typing.Union[str, plib.Path]):
+        # ensure path
+        f_name = plib.Path(f_name).absolute()
+        # check if exists or make
+        if not f_name.suffixes:
+            err = f"no valid filename: {f_name.as_posix()}"
+            log_module.error(err)
+            raise AttributeError(err)
+        f_name.parent.mkdir(parents=True, exist_ok=True)
+        # save
+        if ".pkl" not in f_name.suffixes:
+            log_module.info(f"changing suffix to .pkl")
+            f_name = f_name.with_suffix(".pkl")
+        log_module.info(f"writing file: {f_name.as_posix()}")
+        with open(f_name, "wb") as p_file:
+            pkl.dump(self, p_file)
+
+    def save_as_subclasses(self, path: typing.Union[str, plib.Path]):
+        # ensure path
+        path = plib.Path(path).absolute()
+        # check if exists or make
+        if path.suffixes:
+            path = path.parent
+        path.mkdir(parents=True, exist_ok=True)
+        # save
+        for f_name, att_name in self._d_to_set.items():
+            suffix = ".json"
+            if att_name == "pulse":
+                suffix = ".pkl"
+            save_file = path.joinpath(f_name).with_suffix(suffix)
+            log_module.info(f"write file: {save_file.as_posix()}")
+            subclass = self.__getattribute__(att_name)
+            if suffix == ".pkl":
+                subclass.save(save_file)
+            else:
+                subclass.save_json(save_file, indent=2)
 
     @classmethod
     def from_cli(cls, args: sp.ArgumentParser.parse_args):
@@ -80,7 +146,7 @@ class Params(sp.Serializable):
                 if path.is_file():
                     log_module.info(f"load file: {path.as_posix()}")
                     # get corresponding member
-                    mem_name = self._get_d_to_set().get(mem)
+                    mem_name = self._d_to_set.get(mem)
                     if mem_name is not None:
                         mem = extra_files.__getattribute__(mem_name)
                         mem.load(path)
@@ -104,6 +170,8 @@ if __name__ == '__main__':
 
     params = Params.from_cli(args=args)
     params.save("pypsi/options/default_config/pypsi.pkl")
+
+    params.save_as_subclasses("pypsi/options/default_config/")
 
     params = Params.load("pypsi/options/default_config/pypsi.pkl")
     log_module.info("success")
