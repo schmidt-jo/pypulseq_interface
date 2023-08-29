@@ -12,6 +12,7 @@ class PypulseqParameters(sp.helpers.Serializable):
     """
     Holding all Sequence Parameters
     """
+    name: str = "jstmc"
     version: str = "xx"
     report: bool = sp.field(default=False, alias="-r")
     visualize: bool = sp.field(default=True, alias="-v")
