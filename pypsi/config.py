@@ -16,7 +16,7 @@ import typing
 
 import simple_parsing as sp
 import dataclasses as dc
-from pypsi import options as opts
+from pypsi import parameters as iparams
 
 log_module = logging.getLogger(__name__)
 
@@ -42,12 +42,12 @@ class XConfig(sp.Serializable):
 @dc.dataclass
 class Params:
     config: Config = Config()
-    emc: opts.EmcParameters = opts.EmcParameters()
-    pypulseq: opts.PypulseqParameters = opts.PypulseqParameters()
-    pulse: opts.RFParameters = opts.RFParameters()
-    sampling_k_traj: opts.SamplingKTrajectoryParameters = opts.SamplingKTrajectoryParameters()
-    recon: opts.ReconParameters = opts.ReconParameters()
-    specs: opts.ScannerParameters = opts.ScannerParameters()
+    emc: iparams.EmcParameters = iparams.EmcParameters()
+    pypulseq: iparams.PypulseqParameters = iparams.PypulseqParameters()
+    pulse: iparams.RFParameters = iparams.RFParameters()
+    sampling_k_traj: iparams.SamplingKTrajectoryParameters = iparams.SamplingKTrajectoryParameters()
+    recon: iparams.ReconParameters = iparams.ReconParameters()
+    specs: iparams.ScannerParameters = iparams.ScannerParameters()
 
     def __post_init__(self):
         self._d_to_set: dict = {
@@ -135,6 +135,11 @@ class Params:
         instance._load_extra_argfile(extra_files=args.extra_files)
         return instance
 
+    def visualize(self):
+        self.sampling_k_traj.plot_sampling_pattern(output_path=self.config.output_path)
+        self.sampling_k_traj.plot_k_space_trajectories(output_path=self.config.output_path)
+        self.pulse.plot(output_path=self.config.output_path)
+
     def _load_extra_argfile(self, extra_files: XConfig):
         # check through all arguments
         for mem, f_name in extra_files.__dict__.items():
@@ -169,9 +174,9 @@ if __name__ == '__main__':
     parser, args = create_cli()
 
     params = Params.from_cli(args=args)
-    params.save("pypsi/options/default_config/pypsi.pkl")
+    params.save("pypsi/parameters/default_config/pypsi.pkl")
 
-    params.save_as_subclasses("pypsi/options/default_config/")
+    params.save_as_subclasses("pypsi/parameters/default_config/")
 
-    params = Params.load("pypsi/options/default_config/pypsi.pkl")
+    params = Params.load("pypsi/parameters/default_config/pypsi.pkl")
     log_module.info("success")

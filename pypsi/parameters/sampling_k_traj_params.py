@@ -6,6 +6,7 @@ import pandas as pd
 import logging
 import pathlib as plib
 import dataclasses as dc
+import plotly.express as px
 
 log_module = logging.getLogger(__name__)
 
@@ -102,24 +103,54 @@ class SamplingKTrajectoryParameters:
     def sampling_pattern_from_list(self, sp_list: list):
         self.sampling_pattern = pd.DataFrame(sp_list).set_index("scan_num")
 
-    # def build_save_k_traj(self, k_trajs: list, labels: list, n_samples_ref: int) -> pd.DataFrame:
-    #     # sanity check
-    #     if len(k_trajs) != len(labels):
-    #         err = "provide same number of labels as trajectories"
-    #         log_module.error(err)
-    #         raise AttributeError(err)
-    #     # build k_traj df
-    #     # add fully sampled reference
-    #     k_labels = ["fs_ref"] * n_samples_ref
-    #     traj_data: list = np.linspace(-0.5, 0.5, n_samples_ref).tolist()
-    #     traj_pts: list = np.arange(n_samples_ref).tolist()
-    #     for traj_idx in range(len(k_trajs)):
-    #         k_labels.extend([labels[traj_idx]] * k_trajs[traj_idx].shape[0])
-    #         traj_data.extend(k_trajs[traj_idx].tolist())
-    #         traj_pts.extend(np.arange(k_trajs[traj_idx].shape[0]).tolist())
-    #
-    #     k_traj_df = pd.DataFrame({
-    #         "acquisition": k_labels, "k_read_position": traj_data, "adc_sampling_num": traj_pts
-    #     })
-    #     # self.write_k_traj(k_traj_df)
-    #     return k_traj_df
+    def plot_sampling_pattern(self, output_path: typing.Union[str, plib.Path]):
+        # ensure plib path
+        out_path = plib.Path(output_path).absolute().joinpath("plots")
+        out_path.mkdir(parents=True, exist_ok=True)
+        # plot
+        fig_nav = px.scatter(
+            self.sampling_pattern, x="num_scan", y="pe_num",
+            color="echo_num", symbol="navigator",
+            size="slice_num",
+            labels={
+                "num_scan": "Scan Number", "pe_num": "# phase encode", "navigator": "nav",
+                "slice_num": "# slice"
+            }
+        )
+        fig_multi_acq = px.scatter(
+            self.sampling_pattern, x="num_scan", y="pe_num",
+            color="echo_num", symbol="type",
+            size="slice_num",
+            labels={
+                "num_scan": "Scan Number", "pe_num": "# phase encode", "type": "echo-type",
+                "slice_num": "# slice"
+            }
+        )
+        fig_nav.update_layout(
+            title="Sampling Pattern Sequence",
+            xaxis_title="Number of Scan",
+            yaxis_title="Phase Encode Line",
+        )
+        fig_multi_acq.update_layout(
+            title="Sampling Pattern Sequence",
+            xaxis_title="Number of Scan",
+            yaxis_title="Phase Encode Line",
+        )
+        # save
+        save_file = out_path.joinpath("sp_whole_pattern_nav").with_suffix(".html")
+        log_module.info(f"\t- writing plot file: {save_file}")
+        fig_nav.write_html(save_file)
+        save_file = out_path.joinpath("sp_whole_pattern_acq_type").with_suffix(".html")
+        log_module.info(f"\t- writing plot file: {save_file}")
+        fig_nav.write_html(save_file)
+
+    def plot_k_space_trajectories(self, output_path: typing.Union[str, plib.Path]):
+        # ensure plib path
+        out_path = plib.Path(output_path).absolute().joinpath("plots")
+        out_path.mkdir(parents=True, exist_ok=True)
+        # plot
+        fig = px.scatter(self.k_trajectories, x="adc_sampling_num", y="k_read_position", color="acquisition")
+        # save
+        f_name = out_path.joinpath("k_space_trajectories").with_suffix(".html")
+        log_module.info(f"\t\t - writing file: {f_name.as_posix()}")
+        fig.write_html(f_name.as_posix())

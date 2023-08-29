@@ -6,6 +6,7 @@ import pathlib as plib
 import typing
 import pickle
 import pandas as pd
+import plotly.express as px
 
 logModule = logging.getLogger(__name__)
 
@@ -187,3 +188,20 @@ class RFParameters:
 
     def get_dt_sampling_in_us(self) -> float:
         return self.duration_in_us / self.num_samples
+
+    def plot(self, output_path: typing.Union[str, plib.Path]):
+        # ensure plib path
+        out_path = plib.Path(output_path).absolute().joinpath("plots")
+        out_path.mkdir(parents=True, exist_ok=True)
+        # make df
+        time_axis = np.tile(np.arange(self.num_samples) * self.duration_in_us / self.num_samples, 2)
+        labels = ["amplitude"] * self.num_samples + ["phase"] * self.num_samples
+        df = pd.DataFrame({
+            "time": time_axis, "data": np.concat((self.amplitude, self.phase), axis=0), "labels": labels
+        })
+        # plot
+        fig = px.line(df, x="time", y="data", color="labels")
+        # save
+        f_name = out_path.joinpath("pulse_shape").with_suffix(".html")
+        logModule.info(f"writing file: {f_name.as_posix()}")
+        fig.write_html(f_name.as_posix())
