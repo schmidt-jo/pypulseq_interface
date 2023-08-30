@@ -81,9 +81,9 @@ class PypulseqParameters(sp.helpers.Serializable):
         # adc raster here hardcoded
         adc_raster = 1e-7
         s_dwell = self.acquisition_time / self.resolution_n_read / self.oversampling  # oversampling
-        adcr_dwell = int(1 / adc_raster * s_dwell)
+        adcr_dwell = int(np.round(s_dwell / adc_raster))
         self.dwell = adc_raster * adcr_dwell
-        if np.abs(s_dwell - self.dwell > 1e-9):
+        if np.abs(s_dwell - self.dwell) > 1e-9:
             log_module.info(f"setting dwell time on adc raster -> small bw adoptions (set bw: {self.bandwidth:.1f})")
         # update acquisition time and bandwidth
         self.acquisition_time = self.dwell * self.resolution_n_read * self.oversampling
