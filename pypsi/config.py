@@ -40,7 +40,7 @@ class XConfig(sp.Serializable):
 
 
 @dc.dataclass
-class Params:
+class Params(sp.Serializable):
     config: Config = Config()
     emc: iparams.EmcParameters = iparams.EmcParameters()
     pypulseq: iparams.PypulseqParameters = iparams.PypulseqParameters()
@@ -59,48 +59,48 @@ class Params:
             "scanner_specs_file": "specs",
         }
 
-    @classmethod
-    def load(cls, f_name: typing.Union[str, plib.Path]):
-        # ensure path
-        f_name = plib.Path(f_name).absolute()
-        # check if exists
-        if f_name.is_file():
-            if ".json" in f_name.suffixes:
-                with open(f_name, "r") as j_file:
-                    # returns json contents as dict
-                    contents = json.load(j_file)
-                    inst = cls()
-                    for key, val in contents.items():
-                        inst.__setattr__(key, val)
-            if ".pkl" in f_name.suffixes:
-                with open(f_name, "rb") as p_file:
-                    inst = pkl.load(p_file)
-            else:
-                err = f"no valid suffix ({f_name.suffixes}), input needs to be .pkl or .json"
-                log_module.error(err)
-                raise AttributeError(err)
-        else:
-            err = f"no valid file: {f_name.as_posix()}"
-            log_module.error(err)
-            raise FileNotFoundError(err)
-        return inst
-
-    def save(self, f_name: typing.Union[str, plib.Path]):
-        # ensure path
-        f_name = plib.Path(f_name).absolute()
-        # check if exists or make
-        if not f_name.suffixes:
-            err = f"no valid filename: {f_name.as_posix()}"
-            log_module.error(err)
-            raise AttributeError(err)
-        f_name.parent.mkdir(parents=True, exist_ok=True)
-        # save
-        if ".pkl" not in f_name.suffixes:
-            log_module.info(f"changing suffix to .pkl")
-            f_name = f_name.with_suffix(".pkl")
-        log_module.info(f"writing file: {f_name.as_posix()}")
-        with open(f_name, "wb") as p_file:
-            pkl.dump(self, p_file)
+    # @classmethod
+    # def load(cls, f_name: typing.Union[str, plib.Path]):
+    #     # ensure path
+    #     f_name = plib.Path(f_name).absolute()
+    #     # check if exists
+    #     if f_name.is_file():
+    #         if ".json" in f_name.suffixes:
+    #             with open(f_name, "r") as j_file:
+    #                 # returns json contents as dict
+    #                 contents = json.load(j_file)
+    #                 inst = cls()
+    #                 for key, val in contents.items():
+    #                     inst.__setattr__(key, val)
+    #         if ".pkl" in f_name.suffixes:
+    #             with open(f_name, "rb") as p_file:
+    #                 inst = pkl.load(p_file)
+    #         else:
+    #             err = f"no valid suffix ({f_name.suffixes}), input needs to be .pkl or .json"
+    #             log_module.error(err)
+    #             raise AttributeError(err)
+    #     else:
+    #         err = f"no valid file: {f_name.as_posix()}"
+    #         log_module.error(err)
+    #         raise FileNotFoundError(err)
+    #     return inst
+    #
+    # def save(self, f_name: typing.Union[str, plib.Path]):
+    #     # ensure path
+    #     f_name = plib.Path(f_name).absolute()
+    #     # check if exists or make
+    #     if not f_name.suffixes:
+    #         err = f"no valid filename: {f_name.as_posix()}"
+    #         log_module.error(err)
+    #         raise AttributeError(err)
+    #     f_name.parent.mkdir(parents=True, exist_ok=True)
+    #     # save
+    #     if ".pkl" not in f_name.suffixes:
+    #         log_module.info(f"changing suffix to .pkl")
+    #         f_name = f_name.with_suffix(".pkl")
+    #     log_module.info(f"writing file: {f_name.as_posix()}")
+    #     with open(f_name, "wb") as p_file:
+    #         pkl.dump(self, p_file)
 
     def save_as_subclasses(self, path: typing.Union[str, plib.Path]):
         # ensure path
@@ -174,9 +174,11 @@ if __name__ == '__main__':
     parser, args = create_cli()
 
     params = Params.from_cli(args=args)
-    params.save("pypsi/parameters/default_config/pypsi.pkl")
+    s_file = plib.Path("./default_config/pypsi.pkl").absolute()
+    s_file.parent.mkdir(parents=True, exist_ok=True)
+    params.save(s_file.as_posix())
 
-    params.save_as_subclasses("pypsi/parameters/default_config/")
+    params.save_as_subclasses(s_file.parent.as_posix())
 
-    params = Params.load("pypsi/parameters/default_config/pypsi.pkl")
+    params = Params.load(s_file.as_posix())
     log_module.info("success")
