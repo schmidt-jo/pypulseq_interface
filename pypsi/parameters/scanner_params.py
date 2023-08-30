@@ -3,7 +3,7 @@ import dataclasses as dc
 
 
 @dc.dataclass
-class ScannerParameters(sp.Serializable):
+class ScannerParameters(sp.helpers.Serializable):
     """
     Holding all Scanning System Parameters
     """

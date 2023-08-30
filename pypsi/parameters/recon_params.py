@@ -9,7 +9,7 @@ log_module = logging.getLogger(__name__)
 
 
 @dc.dataclass
-class ImageAcqParameters(sp.Serializable):
+class ImageAcqParameters(sp.helpers.Serializable):
     # define all recon parameters we ship in interface
     n_read: int = -1
     n_phase: int = -1

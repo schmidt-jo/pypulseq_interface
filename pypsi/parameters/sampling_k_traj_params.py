@@ -1,6 +1,6 @@
 import json
 import typing
-
+import simple_parsing as sp
 import numpy as np
 import pandas as pd
 import logging
@@ -12,7 +12,7 @@ log_module = logging.getLogger(__name__)
 
 
 @dc.dataclass
-class SamplingKTrajectoryParameters:
+class SamplingKTrajectoryParameters(sp.helpers.Serializable):
     k_trajectories: pd.DataFrame = pd.DataFrame(
         columns=["acquisition", "adc_sampling_num", "k_traj_position"]
     )
@@ -22,51 +22,51 @@ class SamplingKTrajectoryParameters:
                  "nav_acq", "nav_dir"]
     )
 
-    def save_json(self, f_name: typing.Union[str, plib.Path], indent: int):
-        self.save(f_name=f_name, indent=indent)
-
-    def save(self, f_name: typing.Union[str, plib.Path], indent: int):
-        # ensure path
-        f_name = plib.Path(f_name).absolute()
-        # check if exists or make
-        if not f_name.suffixes:
-            f_name = f_name.with_name("sampling_k_traj_file").with_suffix(".json")
-            log_module.info(f"no suffix detected: changing filename to {f_name}")
-        if ".json" not in f_name.suffixes:
-            f_name = f_name.with_suffix(".json")
-            log_module.info(f"ensuring to save as .json, changing suffix")
-        f_name.parent.mkdir(parents=True, exist_ok=True)
-        # transform dfs to dicts
-        sampling_pattern = self.sampling_pattern.to_dict()
-        k_traj = self.k_trajectories.to_dict()
-        # save dict
-        save_dict = {
-            "sampling_pattern": sampling_pattern,
-            "k_trajectories": k_traj
-        }
-        with open(f_name, "w") as j_file:
-            json.dump(save_dict, j_file, indent=indent)
-
-    @classmethod
-    def load(cls, f_name: typing.Union[str, plib.Path]):
-        # ensure path
-        f_name = plib.Path(f_name).absolute()
-        if not f_name.is_file():
-            err = f"no valid file found ({f_name.as_posix()})"
-            raise FileNotFoundError(err)
-        if ".json" not in f_name.suffixes:
-            err = f"file ({f_name.as_posix()}) not given as .json"
-            log_module.error(err)
-            raise AttributeError(err)
-        # load dict
-        with open(f_name, "r") as j_file:
-            ld = json.load(j_file)
-
-        # convert from dict
-        inst = cls()
-        inst.sampling_pattern = pd.DataFrame.from_dict(ld["sampling_pattern"])
-        inst.k_trajectories = pd.DataFrame.from_dict(ld["k_trajectories"])
-        return inst
+    # def save_json(self, f_name: typing.Union[str, plib.Path], indent: int):
+    #     self.save(f_name=f_name, indent=indent)
+    #
+    # def save(self, f_name: typing.Union[str, plib.Path], indent: int):
+    #     # ensure path
+    #     f_name = plib.Path(f_name).absolute()
+    #     # check if exists or make
+    #     if not f_name.suffixes:
+    #         f_name = f_name.with_name("sampling_k_traj_file").with_suffix(".json")
+    #         log_module.info(f"no suffix detected: changing filename to {f_name}")
+    #     if ".json" not in f_name.suffixes:
+    #         f_name = f_name.with_suffix(".json")
+    #         log_module.info(f"ensuring to save as .json, changing suffix")
+    #     f_name.parent.mkdir(parents=True, exist_ok=True)
+    #     # transform dfs to dicts
+    #     sampling_pattern = self.sampling_pattern.to_dict()
+    #     k_traj = self.k_trajectories.to_dict()
+    #     # save dict
+    #     save_dict = {
+    #         "sampling_pattern": sampling_pattern,
+    #         "k_trajectories": k_traj
+    #     }
+    #     with open(f_name, "w") as j_file:
+    #         json.dump(save_dict, j_file, indent=indent)
+    #
+    # @classmethod
+    # def load(cls, f_name: typing.Union[str, plib.Path]):
+    #     # ensure path
+    #     f_name = plib.Path(f_name).absolute()
+    #     if not f_name.is_file():
+    #         err = f"no valid file found ({f_name.as_posix()})"
+    #         raise FileNotFoundError(err)
+    #     if ".json" not in f_name.suffixes:
+    #         err = f"file ({f_name.as_posix()}) not given as .json"
+    #         log_module.error(err)
+    #         raise AttributeError(err)
+    #     # load dict
+    #     with open(f_name, "r") as j_file:
+    #         ld = json.load(j_file)
+    #
+    #     # convert from dict
+    #     inst = cls()
+    #     inst.sampling_pattern = pd.DataFrame.from_dict(ld["sampling_pattern"])
+    #     inst.k_trajectories = pd.DataFrame.from_dict(ld["k_trajectories"])
+    #     return inst
 
     def register_trajectory(self, trajectory: np.ndarray, identifier: str):
         if trajectory.shape.__len__() > 1:

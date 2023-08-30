@@ -22,14 +22,14 @@ log_module = logging.getLogger(__name__)
 
 
 @dc.dataclass
-class Config(sp.Serializable):
+class Config(sp.helpers.Serializable):
     config_file: str = sp.field(default="", alias=["-c"])
     output_path: str = sp.field(default="./test/", alias=["-o"])
     visualize: bool = sp.field(default=True, alias=["-v"])
 
 
 @dc.dataclass
-class XConfig(sp.Serializable):
+class XConfig(sp.helpers.Serializable):
     # loading extra files
     pypulseq_config_file: str = sp.field(default=None, alias="-ppf")
     pulse_file: str = sp.field(default=None, alias="-pf")
@@ -40,7 +40,7 @@ class XConfig(sp.Serializable):
 
 
 @dc.dataclass
-class Params(sp.Serializable):
+class Params(sp.helpers.Serializable):
     config: Config = Config()
     emc: iparams.EmcParameters = iparams.EmcParameters()
     pypulseq: iparams.PypulseqParameters = iparams.PypulseqParameters()
@@ -69,7 +69,7 @@ class Params(sp.Serializable):
         # save
         for f_name, att_name in self._d_to_set.items():
             suffix = ".json"
-            if att_name == "pulse":
+            if att_name == "pulse" or att_name == "sampling_k_traj":
                 suffix = ".pkl"
             save_file = path.joinpath(f_name).with_suffix(suffix)
             log_module.info(f"write file: {save_file.as_posix()}")

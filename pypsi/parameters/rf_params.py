@@ -7,6 +7,7 @@ import typing
 import pickle
 import pandas as pd
 import plotly.express as px
+import simple_parsing as sp
 
 logModule = logging.getLogger(__name__)
 
@@ -22,7 +23,7 @@ class GlobalSystem:
 
 
 @dc.dataclass
-class RFParameters:
+class RFParameters(sp.helpers.Serializable):
     name: str = ""
     bandwidth_in_Hz: float = 1000.0
     duration_in_us: float = 2000.0
@@ -63,30 +64,30 @@ class RFParameters:
             self.phase
         )
         self.num_samples = N
-
-    def save(self, f_name: typing.Union[str, plib.Path]):
-        p_name = plib.Path(f_name).absolute()
-        # check existing
-        if p_name.suffixes:
-            p_name.parent.mkdir(parents=True, exist_ok=True)
-        else:
-            p_name.mkdir(parents=True, exist_ok=True)
-        if p_name.is_file():
-            p_name.unlink()
-        with open(p_name, "wb") as p_file:
-            pickle.dump(self, p_file)
-
-    @classmethod
-    def load(cls, f_name):
-        p_name = plib.Path(f_name).absolute()
-        if p_name.is_file():
-            with open(p_name, "rb") as p_file:
-                rf_cls = pickle.load(p_file)
-        else:
-            err = f"No file {p_name} found"
-            logModule.error(err)
-            raise ValueError(err)
-        return rf_cls
+    #
+    # def save(self, f_name: typing.Union[str, plib.Path]):
+    #     p_name = plib.Path(f_name).absolute()
+    #     # check existing
+    #     if p_name.suffixes:
+    #         p_name.parent.mkdir(parents=True, exist_ok=True)
+    #     else:
+    #         p_name.mkdir(parents=True, exist_ok=True)
+    #     if p_name.is_file():
+    #         p_name.unlink()
+    #     with open(p_name, "wb") as p_file:
+    #         pickle.dump(self, p_file)
+    #
+    # @classmethod
+    # def load(cls, f_name):
+    #     p_name = plib.Path(f_name).absolute()
+    #     if p_name.is_file():
+    #         with open(p_name, "rb") as p_file:
+    #             rf_cls = pickle.load(p_file)
+    #     else:
+    #         err = f"No file {p_name} found"
+    #         logModule.error(err)
+    #         raise ValueError(err)
+    #     return rf_cls
 
     @classmethod
     def load_from_txt(cls, f_name: typing.Union[str, plib.Path],

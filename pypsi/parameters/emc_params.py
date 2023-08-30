@@ -7,7 +7,7 @@ log_module = logging.getLogger(__name__)
 
 
 @dc.dataclass
-class EmcParameters(sp.Serializable):
+class EmcParameters(sp.helpers.Serializable):
     """
     Holding all Parameters necessary to simulate via EMC
     """
