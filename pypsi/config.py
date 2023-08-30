@@ -59,6 +59,45 @@ class Params(sp.helpers.Serializable):
             "scanner_specs_file": "specs",
         }
 
+    def display_sequence_configuration(self):
+        # build dataframe for visualization of most important data
+        names = [
+            "",
+            "__ sequence configuration__ ",
+            "name", "version", "report", "resolution_fov_read", "resolution_fov_phase",
+            "resolution_base", "resolution_slice_thickness", "resolution_slice_num", "resolution_slice_gap",
+            "acceleration_factor", "etl", "tr", "bandwidth", "acq_phase_dir",
+            "__ system specifications __",
+            "b_0", "max_grad", "max_slew"
+        ]
+        attr_pypulseq = self.pypulseq.to_dict()
+        attr_specs = self.specs.to_dict()
+        vals = [""] * len(names)
+        vals[0] = "value"
+        for n_idx in range(len(names)):
+            name = names[n_idx]
+            if name in attr_pypulseq.keys():
+                vals[n_idx] = attr_pypulseq[name]
+            if name in attr_specs.keys():
+                vals[n_idx] = attr_specs[name]
+        units = [
+            "unit",
+            "",
+            "", "", "", "mm", "%", "", "mm", "", "%", "", "", "ms", "Hz/px", "",
+            "",
+            "T", "mT/m", "T/m/s"
+        ]
+        d = {
+            "names": names, "vals": vals, "units": units
+        }
+        # set index column blank
+        idx = [""] * len(names)
+        df = pd.DataFrame(d, index=idx)
+        # set index row blank
+        df.columns = ["", "", ""]
+        # display via logging
+        log_module.info(df)
+
     def save_as_subclasses(self, path: typing.Union[str, plib.Path]):
         # ensure path
         path = plib.Path(path).absolute()
