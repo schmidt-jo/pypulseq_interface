@@ -81,16 +81,17 @@ class PypulseqParameters(sp.helpers.Serializable):
         # adc raster here hardcoded
         adc_raster = 1e-7
         s_dwell = self.acquisition_time / self.resolution_n_read / self.oversampling  # oversampling
-        adcr_dwell = int(np.round(s_dwell / adc_raster))
+        adcr_dwell = int(np.floor(s_dwell / adc_raster))     # round down -> slight changes needed to set on raster,
+        # might as well decrease acquisition time with change
         self.dwell = adc_raster * adcr_dwell
         if np.abs(s_dwell - self.dwell) > 1e-9:
             log_module.info(f"setting dwell time on adc raster -> small bw adoptions (set bw: {self.bandwidth:.1f})")
         # update acquisition time and bandwidth
         self.acquisition_time = self.dwell * self.resolution_n_read * self.oversampling
         self.bandwidth = 1 / self.acquisition_time
-        log_module.info(f"Bandwidth: {self.bandwidth:.1f} Hz/px;"
-                        f"Readout time: {self.acquisition_time * 1e3:.1f} ms;"
-                        f"DwellTime: {self.dwell * 1e6:.1f} us;"
+        log_module.info(f"Bandwidth: {self.bandwidth:.1f} Hz/px; "
+                        f"Readout time: {self.acquisition_time * 1e3:.1f} ms; "
+                        f"DwellTime: {self.dwell * 1e6:.1f} us; "
                         f"Number of Freq Encodes: {self.resolution_n_read}")
         # ref list
         if self.refocusing_rf_fa.__len__() != self.refocusing_rf_phase.__len__():
