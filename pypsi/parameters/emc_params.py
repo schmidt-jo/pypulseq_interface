@@ -15,9 +15,9 @@ class EmcParameters(sp.Serializable):
     gamma_hz: float = 42577478.518
 
     # echo train length
-    ETL: int = 16
+    etl: int = 16
     # echo spacing [ms]
-    ESP: float = 9.0
+    esp: float = 9.0
     # bandwidth [Hz/px]
     bw: float = 349
     # gradient mode
@@ -63,7 +63,7 @@ class EmcParameters(sp.Serializable):
                 self.refocus_phase[l_idx] = self.refocus_phase[l_idx] - np.sign(self.refocus_phase[l_idx]) * 180.0
             while abs(self.refocus_angle[l_idx]) > 180.0:
                 self.refocus_angle[l_idx] = self.refocus_angle[l_idx] - np.sign(self.refocus_angle[l_idx]) * 180.0
-        while self.refocus_angle.__len__() < self.ETL:
+        while self.refocus_angle.__len__() < self.etl:
             # fill up list with last value
             self.refocus_angle.append(self.refocus_angle[-1])
             self.refocus_phase.append(self.refocus_phase[-1])

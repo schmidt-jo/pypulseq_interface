@@ -58,8 +58,7 @@ class PypulseqParameters(sp.helpers.Serializable):
     sample_weighting: float = 0.0  # factor to weight random sampling towards central k-space ->
     # towards 1 we get densely sampled center
 
-    acq_phase_dir: str = "PA"
-    acq_read_dir: str = "RL"
+    acq_read_dir: str = "PA"
 
     def __post_init__(self):
         # resolution
@@ -119,10 +118,10 @@ class PypulseqParameters(sp.helpers.Serializable):
         self.refocusing_rf_rad_fa = np.array(self.refocusing_rf_fa) / 180.0 * np.pi
         self.refocusing_rf_rad_phase = np.array(self.refocusing_rf_phase) / 180.0 * np.pi
         self.get_voxel_size()
-        if self.acq_phase_dir == "PA":
+        if self.acq_read_dir == "RL":
             self.read_dir = 'x'
             self.phase_dir = 'y'
-        elif self.acq_phase_dir == "RL":
+        elif self.acq_read_dir == "PA":
             self.phase_dir = 'x'
             self.read_dir = 'y'
         else:

@@ -8,13 +8,13 @@ We want a class structure that provides all of the necessary information for:
 - saving and loading sampling patterns
 - interfacing pulse files - store and plot pulses used or feed in pulse shapes
 """
-import json
-import pickle as pkl
 import logging
 import pathlib as plib
 import typing
-
+import numpy as np
+import pandas as pd
 import simple_parsing as sp
+import simple_parsing.helpers.serialization as sphs
 import dataclasses as dc
 from pypsi import parameters as iparams
 
@@ -58,49 +58,6 @@ class Params(sp.Serializable):
             "raw_data_details_file": "recon",
             "scanner_specs_file": "specs",
         }
-
-    # @classmethod
-    # def load(cls, f_name: typing.Union[str, plib.Path]):
-    #     # ensure path
-    #     f_name = plib.Path(f_name).absolute()
-    #     # check if exists
-    #     if f_name.is_file():
-    #         if ".json" in f_name.suffixes:
-    #             with open(f_name, "r") as j_file:
-    #                 # returns json contents as dict
-    #                 contents = json.load(j_file)
-    #                 inst = cls()
-    #                 for key, val in contents.items():
-    #                     inst.__setattr__(key, val)
-    #         if ".pkl" in f_name.suffixes:
-    #             with open(f_name, "rb") as p_file:
-    #                 inst = pkl.load(p_file)
-    #         else:
-    #             err = f"no valid suffix ({f_name.suffixes}), input needs to be .pkl or .json"
-    #             log_module.error(err)
-    #             raise AttributeError(err)
-    #     else:
-    #         err = f"no valid file: {f_name.as_posix()}"
-    #         log_module.error(err)
-    #         raise FileNotFoundError(err)
-    #     return inst
-    #
-    # def save(self, f_name: typing.Union[str, plib.Path]):
-    #     # ensure path
-    #     f_name = plib.Path(f_name).absolute()
-    #     # check if exists or make
-    #     if not f_name.suffixes:
-    #         err = f"no valid filename: {f_name.as_posix()}"
-    #         log_module.error(err)
-    #         raise AttributeError(err)
-    #     f_name.parent.mkdir(parents=True, exist_ok=True)
-    #     # save
-    #     if ".pkl" not in f_name.suffixes:
-    #         log_module.info(f"changing suffix to .pkl")
-    #         f_name = f_name.with_suffix(".pkl")
-    #     log_module.info(f"writing file: {f_name.as_posix()}")
-    #     with open(f_name, "wb") as p_file:
-    #         pkl.dump(self, p_file)
 
     def save_as_subclasses(self, path: typing.Union[str, plib.Path]):
         # ensure path
@@ -160,6 +117,24 @@ class Params(sp.Serializable):
                     err = f"{path} is not a file. exiting..."
                     log_module.error(err)
                     raise FileNotFoundError(err)
+
+
+# set serializable encoders
+@sphs.encode.register
+def encode_ndarray(obj: np.ndarray):
+    """ encode np ndarray as lists """
+    return obj.tolist()
+
+
+@sphs.encode.register
+def encode_pandas_dataframe(obj: pd.DataFrame):
+    """ encode pandas dataframe as dict """
+    return obj.to_dict()
+
+
+# set serializable decoders
+sphs.register_decoding_fn(np.ndarray, np.array)
+sphs.register_decoding_fn(pd.DataFrame, pd.DataFrame.from_dict)
 
 
 def create_cli() -> (sp.ArgumentParser, sp.ArgumentParser.parse_args):

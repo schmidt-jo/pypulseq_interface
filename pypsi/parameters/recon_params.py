@@ -11,29 +11,29 @@ log_module = logging.getLogger(__name__)
 @dc.dataclass
 class ImageAcqParameters(sp.Serializable):
     # define all recon parameters we ship in interface
-    n_read: int = None
-    n_phase: int = None
-    n_slice: int = None
+    n_read: int = -1
+    n_phase: int = -1
+    n_slice: int = -1
 
-    resolution_read: float = None
-    resolution_phase: float = None
-    resolution_slice: float = None
+    resolution_read: float = 0.0
+    resolution_phase: float = 0.0
+    resolution_slice: float = 0.0
 
-    read_dir: str = None
-    os_factor: int = None
-    acc_read: bool = None
-    acc_factor_phase: float = None
+    read_dir: str = ""
+    os_factor: int = -1
+    acc_read: bool = False
+    acc_factor_phase: float = 0.0
 
-    etl: int = None
-    te: list = None
+    etl: int = -1
+    te: list = sp.field(default_factory=lambda: [0.0])
 
 
 @dc.dataclass
 class NavigatorAcqParameters(ImageAcqParameters):
-    lines_per_nav: int = None
-    num_of_nav: int = None
-    nav_acc_factor: int = None
-    nav_resolution_scaling: float = None
+    lines_per_nav: int = -1
+    num_of_nav: int = -1
+    nav_acc_factor: int = -1
+    nav_resolution_scaling: float = 0.0
 
 
 @dc.dataclass
