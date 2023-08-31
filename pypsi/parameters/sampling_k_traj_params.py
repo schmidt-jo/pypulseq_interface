@@ -109,20 +109,20 @@ class SamplingKTrajectoryParameters(sp.helpers.Serializable):
         out_path.mkdir(parents=True, exist_ok=True)
         # plot
         fig_nav = px.scatter(
-            self.sampling_pattern, x="num_scan", y="pe_num",
-            color="echo_num", symbol="navigator",
+            self.sampling_pattern, x=self.sampling_pattern.index, y="pe_num",
+            color="echo_num", symbol="nav_acq",
             size="slice_num",
             labels={
-                "num_scan": "Scan Number", "pe_num": "# phase encode", "navigator": "nav",
+                "index": "Scan Number", "pe_num": "# phase encode", "nav_acq": "nav",
                 "slice_num": "# slice"
             }
         )
         fig_multi_acq = px.scatter(
-            self.sampling_pattern, x="num_scan", y="pe_num",
-            color="echo_num", symbol="type",
+            self.sampling_pattern, x=self.sampling_pattern.index, y="pe_num",
+            color="echo_num", symbol="echo_type",
             size="slice_num",
             labels={
-                "num_scan": "Scan Number", "pe_num": "# phase encode", "type": "echo-type",
+                "index": "Scan Number", "pe_num": "# phase encode", "echo_type": "echo-type",
                 "slice_num": "# slice"
             }
         )
@@ -142,14 +142,14 @@ class SamplingKTrajectoryParameters(sp.helpers.Serializable):
         fig_nav.write_html(save_file)
         save_file = out_path.joinpath("sp_whole_pattern_acq_type").with_suffix(".html")
         log_module.info(f"\t- writing plot file: {save_file}")
-        fig_nav.write_html(save_file)
+        fig_multi_acq.write_html(save_file)
 
     def plot_k_space_trajectories(self, output_path: typing.Union[str, plib.Path]):
         # ensure plib path
         out_path = plib.Path(output_path).absolute().joinpath("plots")
         out_path.mkdir(parents=True, exist_ok=True)
         # plot
-        fig = px.scatter(self.k_trajectories, x="adc_sampling_num", y="k_read_position", color="acquisition")
+        fig = px.scatter(self.k_trajectories, x="adc_sampling_num", y="k_traj_position", color="acquisition")
         # save
         f_name = out_path.joinpath("k_space_trajectories").with_suffix(".html")
         log_module.info(f"\t\t - writing file: {f_name.as_posix()}")

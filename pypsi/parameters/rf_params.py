@@ -195,14 +195,21 @@ class RFParameters(sp.helpers.Serializable):
         out_path = plib.Path(output_path).absolute().joinpath("plots")
         out_path.mkdir(parents=True, exist_ok=True)
         # make df
-        time_axis = np.tile(np.arange(self.num_samples) * self.duration_in_us / self.num_samples, 2)
+        dt = self.duration_in_us / self.num_samples
+        time_axis = np.tile(np.arange(self.num_samples) * dt, 2)
         labels = ["amplitude"] * self.num_samples + ["phase"] * self.num_samples
+        data = np.concatenate((self.amplitude / np.max(self.amplitude), self.phase / np.pi), axis=0)
         df = pd.DataFrame({
-            "time": time_axis, "data": np.concat((self.amplitude, self.phase), axis=0), "labels": labels
+            "time": time_axis, "data": data, "labels": labels
         })
         # plot
         fig = px.line(df, x="time", y="data", color="labels")
+        fig.update_layout(
+            title="RF Pulse",
+            xaxis_title=f"Sampling point - "+'\u0394t' + f"[{int(dt)} ms]",
+            yaxis_title="Norm. Amplitude | Phase ["+'\u03C0'+"]",
+        )
         # save
         f_name = out_path.joinpath("pulse_shape").with_suffix(".html")
-        logModule.info(f"writing file: {f_name.as_posix()}")
+        logModule.info(f"writing plot file: {f_name.as_posix()}")
         fig.write_html(f_name.as_posix())
