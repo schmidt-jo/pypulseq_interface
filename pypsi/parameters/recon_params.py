@@ -63,7 +63,7 @@ class ReconParameters(sp.Serializable):
 
     def set_navigator_params(
             self, lines_per_nav: int, num_of_nav: int, nav_acc_factor: int, nav_resolution_scaling: float,
-            num_of_navs_per_tr: int,
+            num_of_navs_per_tr: int, os_factor: int
     ):
         self.navigator_img.n_read = int(self.multi_echo_img.n_read * nav_resolution_scaling)
         self.navigator_img.n_phase = int(self.multi_echo_img.n_phase * nav_resolution_scaling)
@@ -79,3 +79,4 @@ class ReconParameters(sp.Serializable):
         self.navigator_img.nav_acc_factor = nav_acc_factor
         self.navigator_img.nav_resolution_scaling = nav_resolution_scaling
         self.navigator_img.etl = 1
+        self.navigator_img.os_factor = os_factor
