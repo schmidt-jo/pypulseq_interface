@@ -19,7 +19,7 @@ class SamplingKTrajectoryParameters(sp.helpers.Serializable):
     sampling_pattern: pd.DataFrame = pd.DataFrame(
         columns=["scan_num", "slice_num", "pe_num", "acq_type",
                  "echo_num", "echo_type", "echo_type_num",
-                 "nav_acq", "nav_dir"]
+                 "nav_acq"]
     )
 
     # def save_json(self, f_name: typing.Union[str, plib.Path], indent: int):
@@ -95,7 +95,7 @@ class SamplingKTrajectoryParameters(sp.helpers.Serializable):
         new_row = pd.Series({
             "scan_num": scan_num, "slice_num": slice_num, "pe_num": pe_num, "acq_type": acq_type,
             "echo_num": echo_num, "echo_type": echo_type, "echo_type_num": echo_type_num,
-            "nav_acq": nav_acq, "nav_dir": nav_dir
+            "nav_acq": nav_acq
         })
         # add entry
         self.sampling_pattern = pd.concat((self.sampling_pattern, new_row.to_frame().T))

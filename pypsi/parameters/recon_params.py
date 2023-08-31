@@ -67,7 +67,7 @@ class ReconParameters(sp.Serializable):
     ):
         self.navigator_img.n_read = int(self.multi_echo_img.n_read * nav_resolution_scaling)
         self.navigator_img.n_phase = int(self.multi_echo_img.n_phase * nav_resolution_scaling)
-        self.navigator_img.n_slice = int(self.multi_echo_img.n_slice * nav_resolution_scaling)
+        self.navigator_img.n_slice = num_of_navs_per_tr
         self.navigator_img.resolution_read = self.multi_echo_img.n_read / nav_resolution_scaling
         self.navigator_img.resolution_phase = self.multi_echo_img.n_phase / nav_resolution_scaling
         self.navigator_img.resolution_slice = self.multi_echo_img.n_slice / nav_resolution_scaling
@@ -78,4 +78,4 @@ class ReconParameters(sp.Serializable):
         self.navigator_img.num_of_nav = num_of_nav
         self.navigator_img.nav_acc_factor = nav_acc_factor
         self.navigator_img.nav_resolution_scaling = nav_resolution_scaling
-        self.navigator_img.etl = num_of_navs_per_tr
+        self.navigator_img.etl = 1
