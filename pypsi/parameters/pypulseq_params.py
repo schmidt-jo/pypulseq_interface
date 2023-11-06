@@ -158,10 +158,15 @@ class PypulseqParameters(sp.helpers.Serializable):
             log_module.error(err)
             raise ValueError(err)
 
-    def get_voxel_size(self):
-        log_module.info(
+    def get_voxel_size(self, write_log: bool = False):
+        msg = (
             f"Voxel Size [read, phase, slice] in mm: "
-            f"{[self.resolution_voxel_size_read, self.resolution_voxel_size_phase, self.resolution_slice_thickness]}")
+            f"{[self.resolution_voxel_size_read, self.resolution_voxel_size_phase, self.resolution_slice_thickness]}"
+        )
+        if write_log:
+            log_module.info(msg)
+        else:
+            log_module.debug(msg)
         return self.resolution_voxel_size_read, self.resolution_voxel_size_phase, self.resolution_slice_thickness
 
     def get_fov(self):
