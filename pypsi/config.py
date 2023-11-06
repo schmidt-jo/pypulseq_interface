@@ -16,7 +16,7 @@ import pandas as pd
 import simple_parsing as sp
 import simple_parsing.helpers.serialization as sphs
 import dataclasses as dc
-from pypsi import parameters as iparams
+from pypsi import parameters
 
 log_module = logging.getLogger(__name__)
 
@@ -42,12 +42,12 @@ class XConfig(sp.helpers.Serializable):
 @dc.dataclass
 class Params(sp.helpers.Serializable):
     config: Config = Config()
-    emc: iparams.EmcParameters = iparams.EmcParameters()
-    pypulseq: iparams.PypulseqParameters = iparams.PypulseqParameters()
-    pulse: iparams.RFParameters = iparams.RFParameters()
-    sampling_k_traj: iparams.SamplingKTrajectoryParameters = iparams.SamplingKTrajectoryParameters()
-    recon: iparams.ReconParameters = iparams.ReconParameters()
-    specs: iparams.ScannerParameters = iparams.ScannerParameters()
+    emc: parameters.EmcParameters = parameters.EmcParameters()
+    pypulseq: parameters.PypulseqParameters = parameters.PypulseqParameters()
+    pulse: parameters.RFParameters = parameters.RFParameters()
+    sampling_k_traj: parameters.SamplingKTrajectoryParameters = parameters.SamplingKTrajectoryParameters()
+    recon: parameters.ReconParameters = parameters.ReconParameters()
+    specs: parameters.ScannerParameters = parameters.ScannerParameters()
 
     def __post_init__(self):
         self._d_to_set: dict = {
