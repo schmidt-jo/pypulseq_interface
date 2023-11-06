@@ -61,9 +61,27 @@ class PypulseqParameters(sp.helpers.Serializable):
     acq_phase_dir: str = "PA"
 
     def __post_init__(self):
-        # resolution
-        self.resolution_n_read = self.resolution_base  # number of freq encodes
-        self.resolution_n_phase = int(self.resolution_base * self.resolution_fov_phase / 100)  # number of phase encodes
+        # resolution, number of fe and pe. we want this to be a multiple of 2 for FFT reasoning (have 0 line)
+        self.resolution_n_read = int(np.ceil(self.resolution_base / 2) * 2)  # number of freq encodes
+        # if we need to up one freq encode point, we need to update the fov to keep desired voxel resolution
+        if np.abs(self.resolution_n_read - self.resolution_base) > 0:
+            log_module.info(
+                f"updating FOV in read direction from {self.resolution_fov_read:.3f} mm to "
+                f"{self.resolution_n_read / self.resolution_base * self.resolution_fov_read:.3f} mm. "
+                f"For even frequency encode number")
+            self.resolution_fov_read *= self.resolution_n_read / self.resolution_base
+            self.resolution_base = self.resolution_n_read
+        # calculate number of phase encodes.
+        # hence we might update the user defined fov phase percentage to the next higher position
+        # phase grads - even number of lines. should end up with a 0 line
+        resolution_n_phase = self.resolution_base * self.resolution_fov_phase / 100
+        self.resolution_n_phase = int(np.ceil(resolution_n_phase / 2) * 2)
+        if np.abs(self.resolution_n_phase - int(resolution_n_phase)) > 0:
+            log_module.info(
+                f"updating FOV in phase direction from {self.resolution_fov_phase:.2f} % to "
+                f"{self.resolution_n_phase / self.resolution_n_read * 100:.2f} % . "
+                f"For even phase encode line number")
+            self.resolution_fov_phase = self.resolution_n_phase / self.resolution_n_read * 100
         self.resolution_voxel_size_read = self.resolution_fov_read / self.resolution_base  # [mm]
         self.resolution_voxel_size_phase = self.resolution_fov_read / self.resolution_base  # [mm]
         self.delta_k_read = 1e3 / self.resolution_fov_read  # cast to m
@@ -72,27 +90,30 @@ class PypulseqParameters(sp.helpers.Serializable):
         # there is one gap less than number of slices,
         self.z_extend = self.resolution_slice_thickness * (
                 self.resolution_slice_num + self.resolution_slice_gap / 100.0 * (self.resolution_slice_num - 1)
-        )   # in mm
+        )  # in mm
         # acc
-        self.number_outer_lines = round((self.resolution_n_phase - self.number_central_lines) / self.acceleration_factor)
+        self.number_outer_lines = round(
+            (self.resolution_n_phase - self.number_central_lines) / self.acceleration_factor)
         # sequence
         self.acquisition_time = 1 / self.bandwidth
         # dwell needs to be on adc raster time, acquisition time is flexible -> leads to small deviations in bandwidth
         # adc raster here hardcoded
         adc_raster = 1e-7
         s_dwell = self.acquisition_time / self.resolution_n_read / self.oversampling  # oversampling
-        adcr_dwell = int(np.floor(s_dwell / adc_raster))     # round down -> slight changes needed to set on raster,
+        adcr_dwell = s_dwell / adc_raster  # we want this to be divisible by 2, take next lower even number
+        adcr_dwell = int(np.floor(adcr_dwell / 2) * 2)
+        # adcr_dwell = int(np.floor(s_dwell / adc_raster))     # round down -> slight changes needed to set on raster,
         # might as well decrease acquisition time with change
         self.dwell = adc_raster * adcr_dwell
         if np.abs(s_dwell - self.dwell) > 1e-9:
-            log_module.info(f"setting dwell time on adc raster -> small bw adoptions (set bw: {self.bandwidth:.1f})")
+            log_module.info(f"setting dwell time on adc raster -> small bw adoptions (set bw: {self.bandwidth:.3f})")
         # update acquisition time and bandwidth
         self.acquisition_time = self.dwell * self.resolution_n_read * self.oversampling
         self.bandwidth = 1 / self.acquisition_time
-        log_module.info(f"Bandwidth: {self.bandwidth:.1f} Hz/px; "
-                        f"Readout time: {self.acquisition_time * 1e3:.1f} ms; "
-                        f"DwellTime: {self.dwell * 1e6:.1f} us; "
-                        f"Number of Freq Encodes: {self.resolution_n_read}")
+        log_module.debug(f"Bandwidth: {self.bandwidth:.3f} Hz/px; "
+                         f"Readout time: {self.acquisition_time * 1e3:.1f} ms; "
+                         f"DwellTime: {self.dwell * 1e6:.1f} us; "
+                         f"Number of Freq Encodes: {self.resolution_n_read}")
         # ref list
         if self.refocusing_rf_fa.__len__() != self.refocusing_rf_phase.__len__():
             err = f"provide same amount of refocusing pulse angle ({self.refocusing_rf_fa.__len__()}) " \
@@ -105,7 +126,8 @@ class PypulseqParameters(sp.helpers.Serializable):
                 self.refocusing_rf_phase[l_idx] = self.refocusing_rf_phase[l_idx] - \
                                                   np.sign(self.refocusing_rf_phase[l_idx]) * 180.0
             while np.abs(self.refocusing_rf_fa[l_idx]) > 180.0:
-                self.refocusing_rf_fa[l_idx] = self.refocusing_rf_fa[l_idx] - np.sign(self.refocusing_rf_fa[l_idx]) * 180.0
+                self.refocusing_rf_fa[l_idx] = self.refocusing_rf_fa[l_idx] - np.sign(
+                    self.refocusing_rf_fa[l_idx]) * 180.0
         while self.refocusing_rf_fa.__len__() < self.etl:
             # fill up list with last value
             self.refocusing_rf_fa.append(self.refocusing_rf_fa[-1])

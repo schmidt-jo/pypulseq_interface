@@ -64,11 +64,24 @@ class Params(sp.helpers.Serializable):
         names = [
             "",
             "__ sequence configuration__ ",
-            "name", "version", "report", "resolution_fov_read", "resolution_fov_phase",
+            "name", "version", "report",
+            "resolution_fov_read", "resolution_fov_phase",
             "resolution_base", "resolution_slice_thickness", "resolution_slice_num", "resolution_slice_gap",
+            "resolution_voxel_size_read", "resolution_voxel_size_phase",
             "acceleration_factor", "etl", "tr", "bandwidth", "acq_phase_dir",
             "__ system specifications __",
             "b_0", "max_grad", "max_slew"
+        ]
+        units = [
+            "unit",
+            "",
+            "", "", "",
+            "mm", "%",
+            "", "mm", "", "%",
+            "mm", "mm",
+            "", "", "ms", "Hz/px", "",
+            "",
+            "T", "mT/m", "T/m/s"
         ]
         attr_pypulseq = self.pypulseq.to_dict()
         attr_specs = self.specs.to_dict()
@@ -80,13 +93,10 @@ class Params(sp.helpers.Serializable):
                 vals[n_idx] = attr_pypulseq[name]
             if name in attr_specs.keys():
                 vals[n_idx] = attr_specs[name]
-        units = [
-            "unit",
-            "",
-            "", "", "", "mm", "%", "", "mm", "", "%", "", "", "ms", "Hz/px", "",
-            "",
-            "T", "mT/m", "T/m/s"
-        ]
+            # add voxel size, not in dict from post init
+            if name == "resolution_voxel_size_read" or name == "resolution_voxel_size_phase":
+                vals[n_idx] = f"{self.pypulseq.__getattribute__(name):.3f}"
+
         d = {
             "names": names, "vals": vals, "units": units
         }
