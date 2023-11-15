@@ -44,10 +44,13 @@ class EmcParameters(sp.helpers.Serializable):
     duration_refocus: float = 3584.0
 
     gradient_crush: float = -38.7  # [mT/m], crusher
-    duration_crush: float = 1000.0  # [us], crushe
+    duration_crush: float = 1000.0  # [us], crusher
     gradient_acquisition: float = 0.0  # set automatically after settings init
 
     # time for acquisition (of one pixel) * 1e6 <- [(px)s] * 1e6
+
+    # echo times
+    tes: list = sp.field(default_factory=lambda: [0.0])
 
     def __post_init__(self):
         self.gamma_pi: float = self.gamma_hz * 2 * np.pi
