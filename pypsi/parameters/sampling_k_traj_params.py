@@ -61,8 +61,10 @@ class SamplingKTrajectoryParameters(sp.helpers.Serializable):
         out_path = plib.Path(output_path).absolute().joinpath("plots")
         out_path.mkdir(parents=True, exist_ok=True)
         # plot
+        plot_pattern = self.sampling_pattern
+        plot_pattern["slice_num"] = plot_pattern["slice_num"] + 2
         fig_nav = px.scatter(
-            self.sampling_pattern, x=self.sampling_pattern.index, y="pe_num",
+            plot_pattern, x=self.sampling_pattern.index, y="pe_num",
             color="echo_num", symbol="nav_acq",
             size="slice_num",
             labels={
@@ -71,7 +73,7 @@ class SamplingKTrajectoryParameters(sp.helpers.Serializable):
             }
         )
         fig_multi_acq = px.scatter(
-            self.sampling_pattern, x=self.sampling_pattern.index, y="pe_num",
+            plot_pattern, x=self.sampling_pattern.index, y="pe_num",
             color="echo_num", symbol="echo_type",
             size="slice_num",
             labels={
