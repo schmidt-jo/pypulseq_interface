@@ -59,6 +59,10 @@ class PypulseqParameters(sp.helpers.Serializable):
     # towards 1 we get densely sampled center
 
     acq_phase_dir: str = "PA"
+    rf_adapt_z: bool = sp.field(
+        alias="-rfz", default=False,
+        help="Slice dependent RF scaling to mitigate RF inhomogeneity problems."
+    )
 
     def __post_init__(self):
         # resolution, number of fe and pe. we want this to be a multiple of 2 for FFT reasoning (have 0 line)

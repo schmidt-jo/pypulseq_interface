@@ -69,6 +69,7 @@ class Params(sp.helpers.Serializable):
             "resolution_base", "resolution_slice_thickness", "resolution_slice_num", "resolution_slice_gap",
             "resolution_voxel_size_read", "resolution_voxel_size_phase",
             "acceleration_factor", "etl", "tr", "bandwidth", "acq_phase_dir",
+            "rf_adapt_z",
             "__ system specifications __",
             "b_0", "max_grad", "max_slew"
         ]
@@ -81,7 +82,8 @@ class Params(sp.helpers.Serializable):
             "mm", "mm",
             "", "", "ms", "Hz/px", "",
             "",
-            "T", "mT/m", "T/m/s"
+            "",
+            "T", "mT/m", "T/m/s",
         ]
         attr_pypulseq = self.pypulseq.to_dict()
         attr_specs = self.specs.to_dict()
