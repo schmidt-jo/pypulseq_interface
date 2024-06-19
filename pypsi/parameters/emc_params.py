@@ -49,6 +49,12 @@ class EmcParameters(sp.helpers.Serializable):
 
     # time for acquisition (of one pixel) * 1e6 <- [(px)s] * 1e6
 
+    # Verse - assuming the respective gradient specified above is the middle / main gradient,
+    # only specify lobes and lobe timing
+    gradient_excitation_verse_lobes: float = 0.0
+    duration_excitation_verse_lobes: float = 0.0
+    gradient_refocus_verse_lobes: float = 0.0
+    duration_refocus_verse_lobes: float = 0.0
     # echo times
     tes: list = sp.field(default_factory=lambda: [0.0])
 
