@@ -55,7 +55,11 @@ class PypulseqParameters(sp.helpers.Serializable):
 
     bandwidth: float = 250.0  # [Hz / px]
     oversampling: int = 2  # oversampling factor
-    sample_weighting: float = 0.0  # factor to weight random sampling towards central k-space ->
+    sampling_pattern: str = sp.field(
+        choices=["weighted_sampling", "interleaved_lines", "grappa"],
+        default="weighted_sampling"
+    )
+    sample_weighting: float = 0.3  # factor to weight random sampling towards central k-space ->
     # towards 1 we get densely sampled center
 
     acq_phase_dir: str = "PA"
