@@ -61,15 +61,6 @@ class SamplingKTrajectoryParameters(sp.helpers.Serializable):
         out_path = plib.Path(output_path).absolute().joinpath("plots")
         out_path.mkdir(parents=True, exist_ok=True)
         # plot
-        fig_nav = px.scatter(
-            self.sampling_pattern, x=self.sampling_pattern.index, y="pe_num",
-            color="echo_num", symbol="nav_acq",
-            size="slice_num",
-            labels={
-                "index": "Scan Number", "pe_num": "# phase encode", "nav_acq": "nav",
-                "slice_num": "# slice"
-            }
-        )
         fig_multi_acq = px.scatter(
             self.sampling_pattern, x=self.sampling_pattern.index, y="pe_num",
             color="echo_num", symbol="echo_type",
@@ -79,20 +70,13 @@ class SamplingKTrajectoryParameters(sp.helpers.Serializable):
                 "slice_num": "# slice"
             }
         )
-        fig_nav.update_layout(
-            title="Sampling Pattern Sequence",
-            xaxis_title="Number of Scan",
-            yaxis_title="Phase Encode Line",
-        )
+
         fig_multi_acq.update_layout(
             title="Sampling Pattern Sequence",
             xaxis_title="Number of Scan",
             yaxis_title="Phase Encode Line",
         )
         # save
-        save_file = out_path.joinpath("sp_whole_pattern_nav").with_suffix(".html")
-        log_module.info(f"\t- writing plot file: {save_file}")
-        fig_nav.write_html(save_file)
         save_file = out_path.joinpath("sp_whole_pattern_acq_type").with_suffix(".html")
         log_module.info(f"\t- writing plot file: {save_file}")
         fig_multi_acq.write_html(save_file)

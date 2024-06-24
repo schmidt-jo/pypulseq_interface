@@ -68,6 +68,11 @@ class PypulseqParameters(sp.helpers.Serializable):
         help="Slice dependent RF scaling to mitigate RF inhomogeneity problems."
     )
 
+    use_navs: bool = sp.field(
+        alias="-navs", default=False,
+        help="Use Navigator scans on upper and lower slice slab edges to track 2D motion per TR."
+    )
+
     def __post_init__(self):
         # resolution, number of fe and pe. we want this to be a multiple of 2 for FFT reasoning (have 0 line)
         self.resolution_n_read = int(np.ceil(self.resolution_base / 2) * 2)  # number of freq encodes
