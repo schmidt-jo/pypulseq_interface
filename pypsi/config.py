@@ -16,7 +16,7 @@ import pandas as pd
 import simple_parsing as sp
 import simple_parsing.helpers.serialization as sphs
 import dataclasses as dc
-from pypsi import parameters
+from . import parameters
 
 log_module = logging.getLogger(__name__)
 
