@@ -55,13 +55,22 @@ class PypulseqParameters(sp.helpers.Serializable):
 
     bandwidth: float = 250.0  # [Hz / px]
     oversampling: int = 2  # oversampling factor
-    sample_weighting: float = 0.0  # factor to weight random sampling towards central k-space ->
+    sampling_pattern: str = sp.field(
+        choices=["weighted_sampling", "interleaved_lines", "grappa"],
+        default="weighted_sampling"
+    )
+    sample_weighting: float = 0.3  # factor to weight random sampling towards central k-space ->
     # towards 1 we get densely sampled center
 
     acq_phase_dir: str = "PA"
     rf_adapt_z: bool = sp.field(
         alias="-rfz", default=False,
         help="Slice dependent RF scaling to mitigate RF inhomogeneity problems."
+    )
+
+    use_navs: bool = sp.field(
+        alias="-navs", default=False,
+        help="Use Navigator scans on upper and lower slice slab edges to track 2D motion per TR."
     )
 
     def __post_init__(self):
